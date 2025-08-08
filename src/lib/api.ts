@@ -3,7 +3,6 @@
 import { createApi, type BaseQueryFn } from "@reduxjs/toolkit/query/react"
 import axios, { type AxiosError, type AxiosInstance, type AxiosRequestConfig } from "axios"
 import type { RootState } from "./store"
-import { setTokens } from "./slices/auth-slice"
 import type {
   User,
   Tokens,
@@ -18,6 +17,7 @@ import type {
   SubmitStepResponse,
   Certificate,
 } from "./types"
+import { setTokens } from "./slices/auth-slices"
 
 // Create a shared axios instance per base URL
 function makeAxios(baseURL: string): AxiosInstance {
