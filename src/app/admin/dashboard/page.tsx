@@ -326,8 +326,11 @@ export default function AdminDashboardPage() {
                             <TableCell>{u.name}</TableCell>
                             <TableCell>{u.email}</TableCell>
                             <TableCell className="capitalize">
-                              {u?.role !== "instructor" && u?.role}
+                              {typeof u?.role === "string" &&
+                                u?.role !== "instructor" &&
+                                u?.role}
                             </TableCell>
+
                             <TableCell>
                               {u.isVerified ? "Verified" : "Pending"}
                             </TableCell>

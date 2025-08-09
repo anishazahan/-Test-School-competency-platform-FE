@@ -4,8 +4,8 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 import type { Tokens, User } from "@/lib/types"
 
 interface AuthState {
-  user: User | null
-  tokens: Tokens | null
+  user: User | null | undefined
+  tokens: Tokens | null | undefined
 }
 
 const initialState: AuthState = {
@@ -17,10 +17,10 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setUser(state, action: PayloadAction<User | null>) {
+    setUser(state, action: PayloadAction<User | null | undefined>) {
       state.user = action.payload
     },
-    setTokens(state, action: PayloadAction<Tokens | null>) {
+    setTokens(state, action: PayloadAction<Tokens | null | undefined>) {
       state.tokens = action.payload
     },
     signOut(state) {

@@ -52,9 +52,13 @@ export default function ExamPage() {
 
   const handleStart = async () => {
     const res = await startStep();
-    if ("data" in res && res.data.step) {
+
+    if ("data" in res && res.data?.step) {
       dispatch(
-        setExamLocalState({ currentStep: res.data.step, dueAt: res.data.dueAt })
+        setExamLocalState({
+          currentStep: res.data.step,
+          dueAt: res.data.dueAt,
+        })
       );
     }
   };

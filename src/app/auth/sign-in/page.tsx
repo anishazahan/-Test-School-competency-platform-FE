@@ -74,7 +74,7 @@ export default function SignInPage() {
               }
               const res = await login(parsed.data);
               if ("data" in res) {
-                dispatch(setTokens(res?.data?.tokens));
+                dispatch(setTokens(res?.data?.tokens ?? null));
                 dispatch(setUser(res?.data?.user));
                 toast.success("Welcome back", {
                   description: "Login successful.",

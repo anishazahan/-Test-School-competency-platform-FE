@@ -7,7 +7,7 @@ import Navbar from "@/components/Navbar";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Test_School Competency Assessment",
+  title: "Test School Competency Assessment",
   description:
     "Digital competency 3-step assessment and certification platform",
 };
