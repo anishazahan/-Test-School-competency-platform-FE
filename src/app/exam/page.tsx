@@ -6,17 +6,18 @@ import {
   useStartStepMutation,
   useGetStepQuestionsQuery,
   useSubmitStepMutation,
+  useDownloadLatestCertificateMutation,
 } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Timer } from "@/components/timer";
 import type { PublicQuestion } from "@/lib/types";
-import { useAppDispatch, useAppSelector } from "@/lib/hook";
 import {
   clearExamLocalState,
   setExamLocalState,
 } from "@/lib/slices/exam-slices";
+import { useAppDispatch, useAppSelector } from "@/lib/hook";
 
 export default function ExamPage() {
   const dispatch = useAppDispatch();
@@ -26,6 +27,8 @@ export default function ExamPage() {
   const { data: questionsData, isFetching: gettingQ } =
     useGetStepQuestionsQuery(currentStep!, { skip: !currentStep });
   const [submitStep, { isLoading: submitting }] = useSubmitStepMutation();
+  const [downloadLatest, { isLoading: downloading }] =
+    useDownloadLatestCertificateMutation();
   const [selected, setSelected] = useState<Record<string, string>>({});
   const [timeExpired, setTimeExpired] = useState(false);
   const [submitLock, setSubmitLock] = useState(false);
@@ -96,16 +99,20 @@ export default function ExamPage() {
               {"Your certified level:"}{" "}
               <span className="font-semibold">{statusData.result?.level}</span>
             </p>
-            <Button asChild className="mr-2">
-              <a
-                href={`${
-                  process.env.NEXT_PUBLIC_API_URL ?? ""
-                }/certificates/my/latest/pdf`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Download certificate
-              </a>
+            <Button
+              onClick={async () => {
+                try {
+                  const blob = await downloadLatest().unwrap();
+                  const url = URL.createObjectURL(blob);
+                  window.open(url, "_blank", "noopener,noreferrer");
+                  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+                } catch (e) {
+                  console.error(e);
+                }
+              }}
+              disabled={downloading}
+            >
+              {downloading ? "Preparing..." : "Download certificate"}
             </Button>
             <Button variant="outline" asChild>
               <a href="/profile/certificates">View certificates</a>
