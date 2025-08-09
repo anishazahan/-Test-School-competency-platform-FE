@@ -70,7 +70,9 @@ export default function SignUpPage() {
             className="w-full"
             disabled={isLoading}
             onClick={async () => {
+              console.log(email, password);
               const parsed = schema.safeParse({ name, email, password });
+              console.log("parsed", parsed);
               if (!parsed.success) return;
               const res = await register(parsed.data);
               if ("data" in res) {

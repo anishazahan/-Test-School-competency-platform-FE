@@ -9,7 +9,6 @@ import type {
   Pagination,
   UserListItem,
   Question,
-  PublicQuestion,
   ExamStatusResponse,
   StartStepResponse,
   GetQuestionsResponse,
@@ -80,7 +79,7 @@ const axiosBaseQuery =
 
 export const api = createApi({
   reducerPath: "api",
-  baseQuery: axiosBaseQuery({ baseUrl: (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api") }),
+  baseQuery: axiosBaseQuery({ baseUrl: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api" }),
   tagTypes: ["User", "Question", "Exam", "Certificate"],
   endpoints: (build) => ({
     // Auth
@@ -101,6 +100,9 @@ export const api = createApi({
     }),
     resetPassword: build.mutation<{ message: string }, { token: string; password: string }>({
       query: (body) => ({ url: "/auth/reset-password", method: "POST", data: body }),
+    }),
+    logout: build.mutation<{ message: string }, void>({
+      query: () => ({ url: "/auth/logout", method: "POST" }),
     }),
 
     // Admin lists
@@ -152,6 +154,7 @@ export const {
   useLoginMutation,
   useForgotPasswordMutation,
   useResetPasswordMutation,
+  useLogoutMutation,
   useListUsersQuery,
   useListQuestionsQuery,
   useCreateQuestionMutation,

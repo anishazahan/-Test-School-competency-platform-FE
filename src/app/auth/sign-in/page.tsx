@@ -44,6 +44,7 @@ export default function SignInPage() {
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
+              className=""
               id="email"
               type="email"
               value={email}

@@ -1,22 +1,23 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import {
   useGetExamStatusQuery,
   useStartStepMutation,
   useGetStepQuestionsQuery,
   useSubmitStepMutation,
 } from "@/lib/api";
-import {
-  setExamLocalState,
-  clearExamLocalState,
-} from "@/lib/slices/exam-slice";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Timer } from "@/components/timer";
 import type { PublicQuestion, SubmitStepRequest } from "@/lib/types";
+import {
+  clearExamLocalState,
+  setExamLocalState,
+} from "@/lib/slices/exam-slices";
+import { useAppDispatch, useAppSelector } from "@/lib/hook";
 
 export default function ExamPage() {
   const dispatch = useAppDispatch();
