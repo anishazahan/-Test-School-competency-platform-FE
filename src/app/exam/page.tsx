@@ -1,23 +1,22 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import {
   useGetExamStatusQuery,
   useStartStepMutation,
   useGetStepQuestionsQuery,
   useSubmitStepMutation,
 } from "@/lib/api";
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Timer } from "@/components/timer";
-import type { PublicQuestion, SubmitStepRequest } from "@/lib/types";
+import type { PublicQuestion } from "@/lib/types";
+import { useAppDispatch, useAppSelector } from "@/lib/hook";
 import {
   clearExamLocalState,
   setExamLocalState,
 } from "@/lib/slices/exam-slices";
-import { useAppDispatch, useAppSelector } from "@/lib/hook";
 
 export default function ExamPage() {
   const dispatch = useAppDispatch();
@@ -28,6 +27,9 @@ export default function ExamPage() {
     useGetStepQuestionsQuery(currentStep!, { skip: !currentStep });
   const [submitStep, { isLoading: submitting }] = useSubmitStepMutation();
   const [selected, setSelected] = useState<Record<string, string>>({});
+  const [timeExpired, setTimeExpired] = useState(false);
+  const [submitLock, setSubmitLock] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
 
   useEffect(() => {
     if (statusData?.currentStep && !currentStep) {
@@ -54,19 +56,31 @@ export default function ExamPage() {
     }
   };
 
-  const handleSubmit = async () => {
-    const payload: SubmitStepRequest = {
-      answers: Object.entries(selected).map(([questionId, choiceId]) => ({
-        questionId,
-        choiceId,
-      })),
-    };
-    const res = await submitStep(payload);
-    if ("data" in res) {
-      dispatch(clearExamLocalState());
-      await refetchStatus();
+  const handleSubmit = useCallback(async () => {
+    if (submitLock || hasSubmitted) return;
+    setSubmitLock(true);
+    try {
+      const payload = Object.entries(selected).map(([qid, cid]) => ({
+        questionId: qid,
+        choiceId: cid,
+      }));
+      const res = await submitStep({ answers: payload });
+      if ("data" in res) {
+        setHasSubmitted(true);
+        dispatch(clearExamLocalState());
+        await refetchStatus();
+      }
+    } finally {
+      setSubmitLock(false);
     }
-  };
+  }, [selected, submitStep, submitLock, hasSubmitted, dispatch, refetchStatus]);
+
+  const onExpireOnce = useCallback(() => {
+    if (timeExpired || hasSubmitted || submitLock) return;
+    setTimeExpired(true);
+    // Auto-submit once
+    void handleSubmit();
+  }, [timeExpired, hasSubmitted, submitLock, handleSubmit]);
 
   if (!statusData) return <div className="p-6">Loading...</div>;
 
@@ -106,7 +120,7 @@ export default function ExamPage() {
     <main className="mx-auto max-w-5xl p-4">
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Exam</h1>
-        {dueAt ? <Timer dueAt={dueAt} onExpire={handleSubmit} /> : null}
+        {dueAt ? <Timer dueAt={dueAt} onExpire={onExpireOnce} /> : null}
       </div>
       <Separator className="mb-4" />
 
@@ -179,9 +193,19 @@ export default function ExamPage() {
           <div className="flex justify-end">
             <Button
               onClick={handleSubmit}
-              disabled={submitting || !questions.length}
+              disabled={
+                submitting ||
+                submitLock ||
+                hasSubmitted ||
+                !questions.length ||
+                timeExpired
+              }
             >
-              {submitting ? "Submitting..." : "Submit step"}
+              {submitting || submitLock
+                ? "Submitting..."
+                : timeExpired
+                ? "Time expired — submitting..."
+                : "Submit step"}
             </Button>
           </div>
         </div>

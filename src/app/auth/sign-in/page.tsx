@@ -87,7 +87,7 @@ export default function SignInPage() {
               } else {
                 toast.error("Login failed", {
                   description:
-                    (res as any).error?.data?.message ?? "Unexpected error",
+                    (res as any).error?.data?.message ?? "Something ent wrong",
                 });
               }
             }}

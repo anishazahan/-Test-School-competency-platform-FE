@@ -18,13 +18,7 @@ import { useLogoutMutation } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { signOut } from "@/lib/slices/auth-slices";
 import { useAppDispatch, useAppSelector } from "@/lib/hook";
-
-const navLinks = [
-  { name: "Get Started", href: "/get-started" },
-  { name: "Admin", href: "/admin/dashboard" },
-  { name: "Student", href: "/exam" },
-  { name: "Supervisor", href: "/supervisor/dashboard" },
-];
+import logo from "../assets/Screenshot_2025-08-09_102528-removebg-preview.png";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -59,7 +53,7 @@ export default function Navbar() {
         <div className="flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <Image
-              src="/assets/Screenshot_2025-08-09_102528-removebg-preview.png"
+              src={logo}
               alt="Test School Logo"
               width={120}
               height={40}
