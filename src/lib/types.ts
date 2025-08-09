@@ -73,7 +73,49 @@ export type SubmitStepResponse = {
 export type Certificate = {
   _id: string
   userId: string
-  level: Level | "C1" | "C2" | "A2" | "B2" | "A1" | "B1"
+  level: Level
   createdAt: string
   attemptId?: string
+}
+
+// Admin stats
+export type AdminStats = {
+  usersByRole: { _id: Role; count: number }[]
+  examsByStatus: { _id: "not_started" | "in_progress" | "completed" | "locked"; count: number }[]
+  certificatesByLevel: { _id: Level; count: number }[]
+  avgScoreByStep: { _id: ExamStep; avgPct: number }[]
+  dailyRegistrations: { _id: string; count: number }[]
+  competencyAccuracy: { _id: string; total: number; correct: number; pct: number }[]
+}
+
+// Supervisor overview
+export type SupervisorOverview = {
+  inProgress: number
+  completed: number
+  locked: number
+  latestAttempts: {
+    _id: string
+    step: ExamStep
+    score: number
+    total: number
+    submittedAt: string
+    user: { name: string; email: string }
+  }[]
+}
+
+export type SupervisorExamItem = {
+  _id: string
+  status: "not_started" | "in_progress" | "completed" | "locked"
+  currentStep: ExamStep | null
+  finalLevel?: Level | null
+  updatedAt: string
+  user: { name: string; email: string }
+}
+
+// Admin certificates table rows
+export type AdminCertificateListItem = {
+  _id: string
+  level: Level
+  createdAt: string
+  user: { name: string; email: string }
 }

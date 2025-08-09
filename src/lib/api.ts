@@ -15,13 +15,15 @@ import type {
   SubmitStepRequest,
   SubmitStepResponse,
   Certificate,
+  AdminStats,
+  SupervisorOverview,
+  SupervisorExamItem,
+  AdminCertificateListItem,
 } from "./types"
 import { setTokens } from "./slices/auth-slices"
 
-// Create a shared axios instance per base URL
 function makeAxios(baseURL: string): AxiosInstance {
-  const instance = axios.create({ baseURL, withCredentials: true })
-  return instance
+  return axios.create({ baseURL, withCredentials: true })
 }
 
 type BaseArgs = {
@@ -33,9 +35,6 @@ type BaseArgs = {
   responseType?: AxiosRequestConfig["responseType"]
 }
 
-// Axios-powered base query that:
-// - attaches Authorization header from Redux
-// - retries once on 401 after refresh
 const axiosBaseQuery =
   ({ baseUrl }: { baseUrl: string }): BaseQueryFn<BaseArgs, unknown, { status?: number; data?: any }> =>
   async (args, { getState, dispatch, signal }) => {
@@ -43,7 +42,6 @@ const axiosBaseQuery =
     const state = getState() as RootState
     const access = state.auth.tokens?.accessToken
     const instance = makeAxios(baseUrl)
-
     try {
       const res = await instance.request({
         url,
@@ -83,7 +81,7 @@ const axiosBaseQuery =
 export const api = createApi({
   reducerPath: "api",
   baseQuery: axiosBaseQuery({ baseUrl: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api" }),
-  tagTypes: ["User", "Question", "Exam", "Certificate"],
+  tagTypes: ["User", "Question", "Exam", "Certificate", "AdminStats", "Supervisor", "AdminCertificates"],
   endpoints: (build) => ({
     // Auth
     register: build.mutation<{ message: string }, { name: string; email: string; password: string }>({
@@ -108,11 +106,31 @@ export const api = createApi({
       query: () => ({ url: "/auth/logout", method: "POST" }),
     }),
 
-    // Admin lists
+    // Admin lists & stats
     listUsers: build.query<Pagination<UserListItem>, { page: number; limit: number }>({
       query: ({ page, limit }) => ({ url: "/admin/users", method: "GET", params: { page, limit } }),
       providesTags: ["User"],
     }),
+    adminStats: build.query<AdminStats, void>({
+      query: () => ({ url: "/admin/stats", method: "GET" }),
+      providesTags: ["AdminStats"],
+    }),
+    adminCertificates: build.query<Pagination<AdminCertificateListItem>, { page: number; limit: number }>({
+      query: ({ page, limit }) => ({ url: "/admin/certificates", method: "GET", params: { page, limit } }),
+      providesTags: ["AdminCertificates"],
+    }),
+
+    // Supervisor
+    supervisorOverview: build.query<SupervisorOverview, void>({
+      query: () => ({ url: "/supervisor/overview", method: "GET" }),
+      providesTags: ["Supervisor"],
+    }),
+    supervisorExams: build.query<Pagination<SupervisorExamItem>, { page: number; limit: number }>({
+      query: ({ page, limit }) => ({ url: "/supervisor/exams", method: "GET", params: { page, limit } }),
+      providesTags: ["Supervisor"],
+    }),
+
+    // Questions
     listQuestions: build.query<Pagination<Question>, { page: number; limit: number }>({
       query: ({ page, limit }) => ({ url: "/questions", method: "GET", params: { page, limit } }),
       providesTags: ["Question"],
@@ -139,7 +157,7 @@ export const api = createApi({
     }),
     submitStep: build.mutation<SubmitStepResponse, SubmitStepRequest>({
       query: (body) => ({ url: "/exams/submit", method: "POST", data: body }),
-      invalidatesTags: ["Exam", "Certificate"],
+      invalidatesTags: ["Exam", "Certificate", "AdminStats"],
     }),
 
     // Certificates
@@ -165,6 +183,9 @@ export const {
   useResetPasswordMutation,
   useLogoutMutation,
   useListUsersQuery,
+  useAdminStatsQuery,
+  useSupervisorOverviewQuery,
+  useSupervisorExamsQuery,
   useListQuestionsQuery,
   useCreateQuestionMutation,
   useGetExamStatusQuery,
@@ -174,4 +195,5 @@ export const {
   useMyCertificatesQuery,
   useDownloadLatestCertificateMutation,
   useDownloadCertificateByIdMutation,
+  useAdminCertificatesQuery,
 } = api
