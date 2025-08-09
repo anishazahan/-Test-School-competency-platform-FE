@@ -96,7 +96,7 @@ export default function ExamPage() {
               {"Your certified level:"}{" "}
               <span className="font-semibold">{statusData.result?.level}</span>
             </p>
-            <Button asChild>
+            <Button asChild className="mr-2">
               <a
                 href={`${
                   process.env.NEXT_PUBLIC_API_URL ?? ""

@@ -30,6 +30,7 @@ type BaseArgs = {
   data?: unknown
   params?: unknown
   headers?: Record<string, string | undefined>
+  responseType?: AxiosRequestConfig["responseType"]
 }
 
 // Axios-powered base query that:
@@ -38,7 +39,7 @@ type BaseArgs = {
 const axiosBaseQuery =
   ({ baseUrl }: { baseUrl: string }): BaseQueryFn<BaseArgs, unknown, { status?: number; data?: any }> =>
   async (args, { getState, dispatch, signal }) => {
-    const { url, method, data, params, headers } = args
+    const { url, method, data, params, headers, responseType } = args
     const state = getState() as RootState
     const access = state.auth.tokens?.accessToken
     const instance = makeAxios(baseUrl)
@@ -49,6 +50,7 @@ const axiosBaseQuery =
         method,
         data,
         params,
+        responseType,
         headers: { ...(headers ?? {}), Authorization: access ? `Bearer ${access}` : undefined },
         signal,
       })
@@ -65,6 +67,7 @@ const axiosBaseQuery =
             method,
             data,
             params,
+            responseType,
             headers: { ...(headers ?? {}), Authorization: `Bearer ${newTokens.tokens.accessToken}` },
             signal,
           })
@@ -144,6 +147,12 @@ export const api = createApi({
       query: () => ({ url: "/certificates/my", method: "GET" }),
       providesTags: ["Certificate"],
     }),
+    downloadLatestCertificate: build.mutation<Blob, void>({
+      query: () => ({ url: "/certificates/my/latest/pdf", method: "GET", responseType: "blob" }),
+    }),
+    downloadCertificateById: build.mutation<Blob, { id: string }>({
+      query: ({ id }) => ({ url: `/certificates/${id}/pdf`, method: "GET", responseType: "blob" }),
+    }),
   }),
 })
 
@@ -163,4 +172,6 @@ export const {
   useGetStepQuestionsQuery,
   useSubmitStepMutation,
   useMyCertificatesQuery,
+  useDownloadLatestCertificateMutation,
+  useDownloadCertificateByIdMutation,
 } = api
