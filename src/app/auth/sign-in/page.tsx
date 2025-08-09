@@ -66,31 +66,27 @@ export default function SignInPage() {
             onClick={async () => {
               const parsed = schema.safeParse({ email, password });
               if (!parsed.success) {
-                toast({
-                  title: "Invalid input",
-                  description: "Please check your email and password.",
+                toast.error("Invalid input", {
+                  description: "Please check your email and password..",
                 });
                 return;
               }
               const res = await login(parsed.data);
               if ("data" in res) {
-                dispatch(setTokens(res.data.tokens));
-                dispatch(setUser(res.data.user));
-                toast({
-                  title: "Welcome back",
+                dispatch(setTokens(res?.data?.tokens));
+                dispatch(setUser(res?.data?.user));
+                toast.success("Welcome back", {
                   description: "Login successful.",
                 });
-                if (res?.data.user.role === "admin")
+                if (res?.data?.user?.role === "admin")
                   router.push("/admin/dashboard");
-                else if (res?.data.user.role === "supervisor")
+                else if (res?.data?.user?.role === "supervisor")
                   router.push("/supervisor/dashboard");
                 else router.push("/exam");
               } else {
-                toast({
-                  title: "Login failed",
+                toast.error("Login failed", {
                   description:
                     (res as any).error?.data?.message ?? "Unexpected error",
-                  variant: "destructive",
                 });
               }
             }}
