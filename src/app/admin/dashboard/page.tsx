@@ -33,12 +33,12 @@ import {
   Legend,
   Cell,
 } from "recharts";
+import { AdminDashboardSkeleton } from "./_components/AdminDashboardSkeleton";
 
 const roleColorMap: Record<string, string> = {
   admin: "#7c3aed", // purple
   student: "#16a34a", // green
   supervisor: "#f59e0b", // amber
-  // fallback for any unexpected roles
   default: "#6b7280", // gray
 };
 
@@ -79,7 +79,6 @@ export default function AdminDashboardPage() {
 
   const usersByRoleData = useMemo(() => {
     if (!stats) return [];
-    // hide "instructor" role manually
     const filtered = (stats as AdminStats).usersByRole
       .filter(
         (x) =>
@@ -146,7 +145,7 @@ export default function AdminDashboardPage() {
 
         <TabsContent value="stats">
           {statsLoading ? (
-            <div>Loading statistics...</div>
+            <AdminDashboardSkeleton />
           ) : (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
               <Card className="h-[320px]">

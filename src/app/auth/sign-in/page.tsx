@@ -100,7 +100,7 @@ export default function SignInPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="absolute right-3 top-8 text-gray-50 cursor-pointer"
+                className="absolute right-3 top-8 cursor-pointer text-gray-500 hover:text-gray-700"
                 tabIndex={-1}
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
@@ -113,7 +113,7 @@ export default function SignInPage() {
               )}
             </div>
 
-            <Button className="w-full " disabled={isLoading} type="submit">
+            <Button className="w-full" disabled={isLoading} type="submit">
               {isLoading ? "Signing in..." : "Sign in"}
             </Button>
 

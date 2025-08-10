@@ -78,7 +78,7 @@ export type Certificate = {
   attemptId?: string
 }
 
-// Admin stats
+// admin stats
 export type AdminStats = {
   usersByRole: { _id: Role; count: number }[]
   examsByStatus: { _id: "not_started" | "in_progress" | "completed" | "locked"; count: number }[]
@@ -88,7 +88,7 @@ export type AdminStats = {
   competencyAccuracy: { _id: string; total: number; correct: number; pct: number }[]
 }
 
-// Supervisor overview
+// supervisor overview
 export type SupervisorOverview = {
   inProgress: number
   completed: number
@@ -112,7 +112,7 @@ export type SupervisorExamItem = {
   user: { name: string; email: string }
 }
 
-// Admin certificates table rows
+// admin certificates table rows
 export type AdminCertificateListItem = {
   _id: string
   level: Level

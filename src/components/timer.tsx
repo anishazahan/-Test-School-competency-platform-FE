@@ -16,7 +16,6 @@ export function Timer({
   const [expired, setExpired] = useState(false);
 
   useEffect(() => {
-    // reset if dueAt changes
     calledRef.current = false;
     setExpired(false);
     if (intervalRef.current) window.clearInterval(intervalRef.current);
@@ -35,12 +34,9 @@ export function Timer({
         window.clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
-      // Fire once
       try {
         onExpire();
-      } catch {
-        // no-op
-      }
+      } catch {}
     }
   }, [now, due, onExpire]);
 

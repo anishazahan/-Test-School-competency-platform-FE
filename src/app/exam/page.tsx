@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Timer } from "@/components/timer";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 import type { PublicQuestion } from "@/lib/types";
 import {
   clearExamLocalState,
@@ -33,6 +35,7 @@ export default function ExamPage() {
   const [timeExpired, setTimeExpired] = useState(false);
   const [submitLock, setSubmitLock] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [startError, setStartError] = useState<string | null>(null);
 
   useEffect(() => {
     if (statusData?.currentStep && !currentStep) {
@@ -51,15 +54,21 @@ export default function ExamPage() {
   );
 
   const handleStart = async () => {
-    const res = await startStep();
-
-    if ("data" in res && res.data?.step) {
-      dispatch(
-        setExamLocalState({
-          currentStep: res.data.step,
-          dueAt: res.data.dueAt,
-        })
-      );
+    setStartError(null);
+    try {
+      const data = await startStep().unwrap();
+      if (data?.step) {
+        dispatch(
+          setExamLocalState({ currentStep: data.step, dueAt: data.dueAt })
+        );
+      }
+    } catch (err: any) {
+      const msg =
+        err?.data?.message ||
+        err?.data ||
+        (typeof err?.error === "string" ? err.error : null) ||
+        "Failed to start step";
+      setStartError(String(msg));
     }
   };
 
@@ -85,7 +94,7 @@ export default function ExamPage() {
   const onExpireOnce = useCallback(() => {
     if (timeExpired || hasSubmitted || submitLock) return;
     setTimeExpired(true);
-    // Auto-submit once
+    // auto-submit
     void handleSubmit();
   }, [timeExpired, hasSubmitted, submitLock, handleSubmit]);
 
@@ -141,6 +150,18 @@ export default function ExamPage() {
             <CardTitle>Start Assessment</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
+            {startError ? (
+              <Alert
+                variant="destructive"
+                className="mb-2"
+                role="alert"
+                aria-live="polite"
+              >
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Cannot start</AlertTitle>
+                <AlertDescription>{startError}</AlertDescription>
+              </Alert>
+            ) : null}
             <p>
               {
                 "You'll begin at Step 1 (A1/A2). Each step includes 44 questions with a timer of 1 minute per question (default)."

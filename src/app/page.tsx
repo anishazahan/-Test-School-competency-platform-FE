@@ -1,6 +1,4 @@
-import Link from "next/link";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
 import img from "../assets/benefits-of-competency-based-learning.jpg";
 import AuthButton from "@/components/AuthButton";
 
