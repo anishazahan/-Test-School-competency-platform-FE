@@ -3,7 +3,14 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import { Menu, X, LogOut, User2, LayoutDashboard } from "lucide-react";
+import {
+  Menu,
+  X,
+  LogOut,
+  User2,
+  LayoutDashboard,
+  ChevronDown,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -15,7 +22,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useLogoutMutation } from "@/lib/api";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "@/lib/slices/auth-slices";
 import { useAppDispatch, useAppSelector } from "@/lib/hook";
 import logo from "../assets/Screenshot_2025-08-09_102528-removebg-preview.png";
@@ -26,6 +33,7 @@ export default function Navbar() {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [logout, { isLoading: loggingOut }] = useLogoutMutation();
+  const pathname = usePathname();
 
   const initials =
     user?.name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "U";
@@ -40,9 +48,7 @@ export default function Navbar() {
   const handleLogout = async () => {
     try {
       await logout().unwrap();
-    } catch {
-      // ignore network error on logout
-    }
+    } catch {}
     dispatch(signOut());
     router.push("/");
   };
@@ -50,14 +56,14 @@ export default function Navbar() {
   return (
     <div className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
+        <div className="flex h-[80px] items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <Image
               src={logo}
               alt="Test School Logo"
               width={120}
               height={40}
-              className="mt-1"
+              className="mt-3"
             />
           </Link>
 
@@ -85,8 +91,10 @@ export default function Navbar() {
                       </AvatarFallback>
                     </Avatar>
                     <span className="text-sm">{user.name || user.email}</span>
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
                   </Button>
                 </DropdownMenuTrigger>
+
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel className="text-xs text-muted-foreground">
                     Signed in as
@@ -95,21 +103,39 @@ export default function Navbar() {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={goDashboard}>
-                    <LayoutDashboard className="mr-2 h-4 w-4" />
-                    <span>Dashboard</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => router.push("/profile/certificates")}
-                  >
-                    <User2 className="mr-2 h-4 w-4" />
-                    <span>My Certificates</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
+
+                  {![
+                    "/admin/dashboard",
+                    "/supervisor/dashboard",
+                    "/exam",
+                  ].includes(pathname) && (
+                    <DropdownMenuItem
+                      className="cursor-pointer"
+                      onClick={goDashboard}
+                    >
+                      <LayoutDashboard className="mr-2 h-4 w-4" />
+                      <span>Dashboard</span>
+                    </DropdownMenuItem>
+                  )}
+
+                  {pathname !== "/profile/certificates" &&
+                    user.role !== "admin" && (
+                      <>
+                        <DropdownMenuItem
+                          className="cursor-pointer"
+                          onClick={() => router.push("/profile/certificates")}
+                        >
+                          <User2 className="mr-2 h-4 w-4" />
+                          <span>My Certificates</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                      </>
+                    )}
+
                   <DropdownMenuItem
                     disabled={loggingOut}
                     onClick={handleLogout}
-                    className="text-red-600 focus:text-red-600"
+                    className="text-red-600 focus:text-red-600 cursor-pointer"
                   >
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>{loggingOut ? "Logging out..." : "Logout"}</span>
@@ -118,7 +144,6 @@ export default function Navbar() {
               </DropdownMenu>
             )}
           </div>
-
           {/* Mobile toggle */}
           <div className="md:hidden">
             <Button
@@ -177,7 +202,12 @@ export default function Navbar() {
                   </div>
                 </div>
               </div>
-              <Button variant="outline" size="sm" onClick={handleLogout}>
+              <Button
+                className="cursor-pointer"
+                variant="outline"
+                size="sm"
+                onClick={handleLogout}
+              >
                 Logout
               </Button>
             </div>

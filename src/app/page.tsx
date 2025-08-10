@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import img from "../assets/benefits-of-competency-based-learning.jpg";
+import AuthButton from "@/components/AuthButton";
 
 export default function HomePage() {
   return (
@@ -16,14 +17,7 @@ export default function HomePage() {
               Assess digital skills through a secure, structured 3-step process.
               Earn certifications from A1 to C2.
             </p>
-            <div className="flex  gap-3 flex-row justify-center lg:justify-start">
-              <Button asChild className="w-auto">
-                <Link href="/auth/sign-up">Get Started</Link>
-              </Button>
-              <Button asChild variant="outline" className="w-auto">
-                <Link href="/auth/sign-in">Sign In</Link>
-              </Button>
-            </div>
+            <AuthButton />
             <div className="text-sm text-muted-foreground">
               Roles: Admin, Student, Supervisor.
             </div>
