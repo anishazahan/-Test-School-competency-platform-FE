@@ -80,7 +80,8 @@ const axiosBaseQuery =
 
 export const api = createApi({
   reducerPath: "api",
-  baseQuery: axiosBaseQuery({ baseUrl: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api" }),
+  // baseQuery: axiosBaseQuery({ baseUrl: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api" }),
+  baseQuery: axiosBaseQuery({ baseUrl: "https://anisha-school-api-1.onrender.com/api" }),
   tagTypes: ["User", "Question", "Exam", "Certificate", "AdminStats", "Supervisor", "AdminCertificates"],
   endpoints: (build) => ({
     // Auth
